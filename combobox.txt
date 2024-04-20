@@ -52,4 +52,12 @@ export default class MultiSelectCombobox extends LightningElement {
         const selectedValues = this.options.filter(option => option.selected).map(option => option.value);
         this.dispatchEvent(new CustomEvent('valuechange', { detail: selectedValues }));
     }
+
+    @track options = [
+        { label: 'Option 1', value: 'opt1', selected: false },
+        { label: 'Option 2', value: 'opt2', selected: false },
+        { label: 'Option 3', value: 'opt3', selected: false },
+        { label: 'Option 4', value: 'opt4', selected: false },
+        { label: 'Option 5', value: 'opt5', selected: false }
+    ];
 }
