@@ -5,8 +5,9 @@
             <lightning-icon icon-name="utility:down" alternative-text="Show Options" size="x-small" class="slds-m-left_small"></lightning-icon>
         </button>
         <div class={dropdownClasses}>
+            <input type="text" placeholder="Search..." class="slds-input slds-combobox__input" oninput={handleSearchChange} />
             <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid">
-                <template for:each={options} for:item="option">
+                <template for:each={filteredOptions} for:item="option">
                     <li key={option.value} class="slds-listbox-item">
                         <div class="slds-media slds-media_center slds-listbox__option slds-listbox__option_plain slds-media_small">
                             <span class="slds-media__figure">
@@ -24,11 +25,17 @@
 </template>
 
 
+
 import { LightningElement, api, track } from 'lwc';
 
 export default class MultiSelectCombobox extends LightningElement {
     @api options = [];
+    @track filteredOptions = [];
     @track isOpen = false;
+
+    connectedCallback() {
+        this.filteredOptions = this.options;
+    }
 
     get dropdownClasses() {
         return `slds-dropdown slds-dropdown_length-5 ${this.isOpen ? 'slds-is-open' : ''}`;
@@ -36,6 +43,13 @@ export default class MultiSelectCombobox extends LightningElement {
 
     toggleDropdown() {
         this.isOpen = !this.isOpen;
+    }
+
+    handleSearchChange(event) {
+        const searchText = event.target.value.toLowerCase();
+        this.filteredOptions = this.options.filter(option => 
+            option.label.toLowerCase().includes(searchText)
+        );
     }
 
     handleSelectionChange(event) {
@@ -52,12 +66,4 @@ export default class MultiSelectCombobox extends LightningElement {
         const selectedValues = this.options.filter(option => option.selected).map(option => option.value);
         this.dispatchEvent(new CustomEvent('valuechange', { detail: selectedValues }));
     }
-
-    @track options = [
-        { label: 'Option 1', value: 'opt1', selected: false },
-        { label: 'Option 2', value: 'opt2', selected: false },
-        { label: 'Option 3', value: 'opt3', selected: false },
-        { label: 'Option 4', value: 'opt4', selected: false },
-        { label: 'Option 5', value: 'opt5', selected: false }
-    ];
 }
