@@ -1,0 +1,55 @@
+<template>
+    <div class="slds-dropdown-trigger slds-dropdown-trigger_click slds-m-bottom_small" onclick={toggleDropdown}>
+        <button class="slds-button slds-combobox_container">
+            <span class="slds-truncate" title="Select Items">Select Items</span>
+            <lightning-icon icon-name="utility:down" alternative-text="Show Options" size="x-small" class="slds-m-left_small"></lightning-icon>
+        </button>
+        <div class={dropdownClasses}>
+            <ul class="slds-listbox slds-listbox_vertical slds-dropdown slds-dropdown_fluid">
+                <template for:each={options} for:item="option">
+                    <li key={option.value} class="slds-listbox-item">
+                        <div class="slds-media slds-media_center slds-listbox__option slds-listbox__option_plain slds-media_small">
+                            <span class="slds-media__figure">
+                                <lightning-input type="checkbox" variant="label-hidden" label={option.label} checked={option.selected} data-value={option.value} onchange={handleSelectionChange}></lightning-input>
+                            </span>
+                            <span class="slds-media__body">
+                                <span class="slds-truncate" title={option.label}>{option.label}</span>
+                            </span>
+                        </div>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </div>
+</template>
+
+
+import { LightningElement, api, track } from 'lwc';
+
+export default class MultiSelectCombobox extends LightningElement {
+    @api options = [];
+    @track isOpen = false;
+
+    get dropdownClasses() {
+        return `slds-dropdown slds-dropdown_length-5 ${this.isOpen ? 'slds-is-open' : ''}`;
+    }
+
+    toggleDropdown() {
+        this.isOpen = !this.isOpen;
+    }
+
+    handleSelectionChange(event) {
+        const value = event.target.dataset.value;
+        const isSelected = event.target.checked;
+        this.options = this.options.map(option => {
+            if (option.value === value) {
+                return {...option, selected: isSelected };
+            }
+            return option;
+        });
+
+        // Fire an event with the selected values
+        const selectedValues = this.options.filter(option => option.selected).map(option => option.value);
+        this.dispatchEvent(new CustomEvent('valuechange', { detail: selectedValues }));
+    }
+}
